@@ -1,0 +1,68 @@
+package pracomponents;
+
+{$R *.res}
+{$R *.dres}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  vcl,
+  designide;
+
+contains
+  PraRegister in '..\source\commom\PraRegister.pas',
+  PraButtonStyle in '..\source\PraButtonStyle.pas',
+  PraConsts in '..\source\commom\PraConsts.pas',
+  PraAbout in '..\source\commom\view\PraAbout.pas' {FPraViewAbout},
+  PraUtils in '..\source\commom\PraUtils.pas',
+  PraButtonStylePrint in '..\source\PraButtonStylePrint.pas',
+  PraButtonStyleTemplateDanger in '..\source\PraButtonStyleTemplateDanger.pas',
+  PraButtonStyleTemplateDark in '..\source\PraButtonStyleTemplateDark.pas',
+  PraButtonStyleTemplateGear in '..\source\PraButtonStyleTemplateGear.pas',
+  PraButtonStyleTemplateInfo in '..\source\PraButtonStyleTemplateInfo.pas',
+  PraButtonStyleTemplateLight in '..\source\PraButtonStyleTemplateLight.pas',
+  PraButtonStyleTemplatePrimary in '..\source\PraButtonStyleTemplatePrimary.pas',
+  PraButtonStyleTemplateSecondary in '..\source\PraButtonStyleTemplateSecondary.pas',
+  PraButtonStyleTemplateSuccess in '..\source\PraButtonStyleTemplateSuccess.pas',
+  PraButtonStyleTemplateWarning in '..\source\PraButtonStyleTemplateWarning.pas',
+  PraInterfaces in '..\source\PraInterfaces.pas',
+  PraButtonStyleSave in '..\source\PraButtonStyleSave.pas',
+  PraButtonStyleEdit in '..\source\PraButtonStyleEdit.pas',
+  PraButtonStyleCancel in '..\source\PraButtonStyleCancel.pas',
+  PraButtonStyleDelete in '..\source\PraButtonStyleDelete.pas',
+  PraButtonStyleGear in '..\source\PraButtonStyleGear.pas',
+  PraButtonStyleHeart in '..\source\PraButtonStyleHeart.pas',
+  PraButtonStyleTemplateHeart in '..\source\PraButtonStyleTemplateHeart.pas',
+  PraButtonStyleMenu in '..\source\PraButtonStyleMenu.pas',
+  PraButtonStyleEmail in '..\source\PraButtonStyleEmail.pas',
+  PraButtonStyleInsert in '..\source\PraButtonStyleInsert.pas',
+  PraButtonStyleBack in '..\source\PraButtonStyleBack.pas',
+  PraButtonStyleClose in '..\source\PraButtonStyleClose.pas',
+  PraButtonStyleReport in '..\source\PraButtonStyleReport.pas';
+
+end.
+

@@ -1,0 +1,641 @@
+unit UCadastro;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.StdCtrls, PraButtonStyle, REST.Types,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, REST.Response.Adapter, REST.Client,
+  Data.Bind.Components, Data.Bind.ObjectScope, Vcl.Mask, FireDAC.Stan.Async,
+  FireDAC.DApt, Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc, acPNG, ACBrBase, ACBrMail;
+
+type
+
+  TFrm_cadastro = class(TForm)
+    pnl_menu_top: TPanel;
+    pnl_menu_left: TPanel;
+    pnl_principal: TPanel;
+    pgcclientes: TPageControl;
+    tbs_dados: TTabSheet;
+    tbs_cadastro: TTabSheet;
+    pnl_cadastro: TPanel;
+    pnl_botoes_cad: TPanel;
+    pnl_dados: TPanel;
+    pnl_consulta: TPanel;
+    GridClientes: TDBGrid;
+    ed_nome: TEdit;
+    ed_email: TEdit;
+    ed_logradouro: TEdit;
+    ed_num: TEdit;
+    ed_complemento: TEdit;
+    ed_bairro: TEdit;
+    ed_cidade: TEdit;
+    ed_uf: TEdit;
+    ed_pais: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Shape1: TShape;
+    Label15: TLabel;
+    Label16: TLabel;
+    Shape3: TShape;
+    btn_sair: TPraButtonStyle;
+    Panel1: TPanel;
+    btn_imprimir: TPraButtonStyle;
+    btn_excluir: TPraButtonStyle;
+    btn_alterar: TPraButtonStyle;
+    btn_incluir: TPraButtonStyle;
+    btn_cancelar: TPraButtonStyle;
+    btn_gravar: TPraButtonStyle;
+    btn_cons_cep: TPraButtonStyle;
+    pnl_bottom: TPanel;
+    ed_cpf: TMaskEdit;
+    ed_fone: TMaskEdit;
+    ed_cep: TMaskEdit;
+    ed_ident: TMaskEdit;
+    Panel2: TPanel;
+    lbl_opcao: TLabel;
+    MTClientes: TFDMemTable;
+    DSMTClientes: TDataSource;
+    MTClientesNome: TStringField;
+    MTClientesIdentidade: TStringField;
+    MTClientescpf: TStringField;
+    MTClientestelefone: TStringField;
+    MTClientesemail: TStringField;
+    MTClientescep: TStringField;
+    MTClienteslogradouro: TStringField;
+    MTClientescomplemento: TStringField;
+    MTClientesbairro: TStringField;
+    MTClientescidade: TStringField;
+    MTClientesuf: TStringField;
+    MTClientespais: TStringField;
+    MTClientesid_cliente: TIntegerField;
+    pnl_pesquisa: TPanel;
+    ed_pesquisa: TEdit;
+    Image1: TImage;
+    Image2: TImage;
+    MTClientesnumero: TStringField;
+    XMLDocument1: TXMLDocument;
+    ACBrMail1: TACBrMail;
+    mm_dados: TMemo;
+    tbs_config: TTabSheet;
+    pnl_config: TPanel;
+    btn_config: TPraButtonStyle;
+    Panel3: TPanel;
+    btn_voltar_config: TPraButtonStyle;
+    ed_dir_xml: TEdit;
+    Label17: TLabel;
+    Label18: TLabel;
+    ed_email_de: TEdit;
+    Label19: TLabel;
+    ed_nome_envio: TEdit;
+    ed_host: TEdit;
+    ed_conta_email: TEdit;
+    Label20: TLabel;
+    Label21: TLabel;
+    Label22: TLabel;
+    ed_senha_email: TEdit;
+    Label23: TLabel;
+    ed_porta: TEdit;
+    Label24: TLabel;
+    chkTLS: TCheckBox;
+    chkSSL: TCheckBox;
+    Label25: TLabel;
+    Shape2: TShape;
+    procedure btn_sairClick(Sender: TObject);
+    procedure btn_incluirClick(Sender: TObject);
+    procedure btn_alterarClick(Sender: TObject);
+    procedure btn_cancelarClick(Sender: TObject);
+    procedure btn_gravarClick(Sender: TObject);
+    procedure btn_cons_cepClick(Sender: TObject);
+    procedure pnl_menu_topMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure ed_cepExit(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btn_excluirClick(Sender: TObject);
+    procedure Image2Click(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+    procedure ACBrMail1MailException(const AMail: TACBrMail; const E: Exception;
+      var ThrowIt: Boolean);
+    procedure btn_configClick(Sender: TObject);
+    procedure btn_voltar_configClick(Sender: TObject);
+    procedure ed_emailExit(Sender: TObject);
+  private
+    { Private declarations }
+
+    //-- procedures e functions sistema
+    procedure EsconderAbas(PageControl: TPageControl);
+    procedure ConsultarCEP(cep: string);
+    function SomenteNumero(str: string): string;
+
+    //-- manutencao cliente
+    procedure mostrar_dados;
+    procedure inserir_cliente;
+    procedure alterar_cliente;
+
+    procedure limpar_campos;
+    //-- email e xml
+    procedure parametros_email;
+    procedure enviar_email;
+    procedure gravar_xml;
+
+
+  public
+    { Public declarations }
+  end;
+
+var
+  Frm_cadastro: TFrm_cadastro;
+
+  //-- data e nome arquivo xml
+  vdata_arq_xml, vnome_arq : string;
+  //-- opcao crud
+  vopcao : string;
+  //-- contador para incrementar codigo cliente
+  vcontador : integer;
+  //-- criados os textos para o memo
+  campos_cad : TStringlist;
+
+implementation
+
+{$R *.dfm}
+
+uses UDMDados, mimemess, IniFiles, TypInfo;
+
+procedure TFrm_cadastro.ConsultarCEP(cep: string);
+begin
+  //-- verifica se o cep digitado esta ok
+  if SomenteNumero(ed_CEP.Text).Length <> 8 then
+    begin
+      ShowMessage('CEP inválido');
+      ed_cep.SetFocus;
+    end;
+  //-- pesquisa no viacep e devolve em json
+  dmdados.RESTRequest1.Resource := SomenteNumero(ed_CEP.Text) + '/json';
+  dmdados.RESTRequest1.Execute;
+  //-- verifica o retorno da pesquisa
+  if dmdados.RESTRequest1.Response.StatusCode = 200 then
+    begin
+      //-- se o cep não for encontrado
+      if dmdados.RESTRequest1.Response.Content.IndexOf('erro') > 0 then
+        begin
+          ShowMessage('CEP não encontrado');
+          ed_cep.SetFocus;
+        end
+      else
+        //-- joga as informaçoes para tabele em memoria
+        begin
+          with dmdados.MemTable do
+          begin
+            //-- dados retornado
+            ed_logradouro.Text  := FieldByName('logradouro').AsString;
+            ed_complemento.Text := FieldByName('complemento').AsString;
+            ed_bairro.Text      := FieldByName('bairro').AsString;
+            ed_cidade.Text      := FieldByName('localidade').AsString;
+            ed_uf.text          := FieldByName('uf').AsString;
+          end;
+        end;
+    end
+  else
+    //-- se retorno statuscode diferente de 200
+    begin
+      ShowMessage('Erro ao consultar CEP');
+      ed_cep.SetFocus;
+    end;
+end;
+
+procedure TFrm_cadastro.ed_cepExit(Sender: TObject);
+begin
+  //-- verifica se o cep for <> de espaço
+  if SomenteNumero(ed_CEP.Text) <> ''  then
+     ConsultarCEP(ed_CEP.Text)
+  else
+    begin
+      showmessage('PREENCHIMENTO OBRIGATORIO');
+      ed_cep.SetFocus;
+    end;
+end;
+
+procedure TFrm_cadastro.ed_emailExit(Sender: TObject);
+begin
+  if ed_email.Text = '' then
+    begin
+      showmessage('Digite um email valido !!');
+      ed_email.SetFocus;
+    end;
+end;
+
+procedure TFrm_cadastro.enviar_email;
+var
+  Dir, ArqXML: string;
+  MS: TMemoryStream;
+  P, N: Integer;
+begin
+
+  //-- inicializar componente ACBr
+  ACBrMail1.Clear;
+  ACBrMail1.Subject := 'Dados Cadastrais do Cliente'; //edSubject.Text;
+
+  //-- Parametros configuracao ACBr -- Tabsheet Config
+  Parametros_email;
+
+  // mensagem do e-mail em texto
+  ACBrMail1.AltBody.Assign(mm_dados.lines);
+
+  //--- Arquivo XML
+  MS := TMemoryStream.Create;
+  try
+    ArqXML := vnome_arq;
+    //-- pega o arquivo na pasta onde esta o xml
+    MS.LoadFromFile(ed_dir_xml.text + ArqXML);
+    ACBrMail1.AddAttachment(MS, ArqXML, adAttachment);
+  finally
+    MS.Free;
+  end;
+
+  ///-- Enviar o email
+  ACBrMail1.Send(false);
+
+end;
+
+procedure TFrm_cadastro.btn_alterarClick(Sender: TObject);
+begin
+  //-- opcao Alteraçao
+  vopcao := 'A';
+
+  lbl_opcao.Caption := 'ALTERACÃO';
+
+  pnl_menu_left.enabled  := false;
+  pgcclientes.ActivePage := tbs_cadastro;
+  //-- limpar campos do form
+  limpar_campos;
+  //-- mostra as informações do cliente
+  mostrar_dados;
+
+  ed_nome.SetFocus;
+
+end;
+
+procedure TFrm_cadastro.btn_cancelarClick(Sender: TObject);
+begin
+  pnl_menu_left.enabled  := true;
+  pgcclientes.ActivePage := tbs_dados;
+end;
+
+procedure TFrm_cadastro.btn_cons_cepClick(Sender: TObject);
+begin
+  //-- botao para consultar o cep
+  ConsultarCEP(ed_CEP.Text);
+end;
+
+procedure TFrm_cadastro.btn_excluirClick(Sender: TObject);
+begin
+  showmessage('EXCLUIR CLIENTE');
+  MTClientes.Delete;
+end;
+
+procedure TFrm_cadastro.btn_gravarClick(Sender: TObject);
+begin
+  //-- opcao Inclusão
+  if vopcao = 'I' then
+    begin
+      //-- faz validações dos campos com preenchimento obrigatorio
+      if ed_nome.Text = '' then
+        begin
+           showmessage('Preenchimento Obrigatorio');
+           ed_nome.SetFocus;
+           exit;
+        end;
+
+      if ed_cep.Text = '' then
+        begin
+           showmessage('Preenchimento Obrigatorio');
+           ed_cep.SetFocus;
+           exit;
+        end;
+
+      //-- rotina para inserir cliente na tabela em memoria
+      inserir_cliente;
+      //-- Cria o nome do arquivo xml com o id_cliente
+      vnome_arq := 'Cliente_'+formatfloat('000',vcontador)+'_'+vdata_arq_xml+'.xml';
+      //-- verifica se o arquivo xml ja esta cadastrado na pasta
+      if FileExists(ed_dir_xml.text+vnome_arq) then
+        begin
+          // Excluir o arquivo XML do diretorio selecionado
+          DeleteFile(ed_dir_xml.text+vnome_arq);
+        end;
+
+      //-- rotina para gravar o arquivo xml
+      gravar_xml;
+      //-- envia o email para o cliente cadastradao (Campo email usado para enviar)
+      enviar_email;
+
+    end
+  else if vopcao = 'A' then
+    begin
+      //-- rotina para fazer alteração do cliente cadastrado na tabela
+      alterar_cliente;
+    end;
+  //-- volta para tela dos dados
+  pnl_menu_left.enabled  := true;
+  pgcclientes.ActivePage := tbs_dados;
+  //-- atualiza tabela
+  dsmtclientes.DataSet.Refresh;
+
+end;
+
+procedure TFrm_cadastro.inserir_cliente;
+var
+  i : Smallint;
+begin
+  //-- criado contador para gera um id do cliente
+  //-- verifica se a tabela esta vazia e gera o contador  = 1
+  if MTClientes.RecordCount = 0 then
+     vcontador := 1
+  else
+  //-- se a tabela ja tiver dados cadastrados acrescenta mais 1 ao contador
+     vcontador := vcontador+1;
+
+  //-- Faz a inserção dos dados na tabela temporario
+  MTClientes.insert;
+  MTClientesId_cliente.value  := vcontador;
+  MTClientesNome.value        := ed_nome.text;
+  MTClientesIdentidade.value  := ed_ident.text;
+  MTClientesCPF.value         := ed_cpf.text;
+  MTClientesTelefone.value    := ed_fone.text;
+  MTClientesEmail.value       := ed_email.text;
+  MTClientesCep.value         := ed_cep.text;
+  MTClientesLogradouro.value  := ed_logradouro.text;
+  MTClientesNumero.value      := ed_num.text;
+  MTClientesComplemento.value := ed_complemento.text;
+  MTClientesBairro.value      := ed_bairro.text;
+  MTClientesCidade.value      := ed_cidade.text;
+  MTClientesUF.value          := ed_uf.text;
+  MTClientesPais.value        := ed_pais.text;
+  //-- grava dados digitados na tabela
+  MTClientes.Post;
+
+  mm_dados.Clear;
+  //-- joga as informações digitadas na stringlist
+  campos_cad.Add('Nome : '+ed_nome.text);
+  campos_cad.Add('Ident : '+ed_ident.text);
+  campos_cad.Add('CPF : '+ed_cpf.text);
+  campos_cad.Add('Telefone : '+ed_fone.text);
+  campos_cad.Add('Email : '+ed_email.text);
+  campos_cad.Add('CEP : '+ed_cep.text);
+  campos_cad.Add('Logradouro : '+ed_logradouro.text+', Num : '+ed_num.text);
+  campos_cad.Add('Complemento : '+ed_complemento.text);
+  campos_cad.Add('Bairro : '+ed_bairro.text);
+  campos_cad.Add('Cidade : '+ed_cidade.text+' - '+ed_uf.text);
+  campos_cad.Add('Bairro : '+ed_pais.text);
+  //-- pega as informaçoes do campo_cad e joga no mm_dados para ser usada no corpo do email
+  for i:=0 to campos_cad.Count-1 do
+    mm_dados.Lines.Add(campos_cad.Strings[i]);
+
+end;
+
+procedure TFrm_cadastro.gravar_xml;
+var
+  venda, cabecalho,cliente,itens,item : IXMLNode;
+begin
+  //-- ativa o xml
+  xmldocument1.Active := true;
+  xmldocument1.Version := '1.0';
+  xmldocument1.encoding := 'UTF-8';
+  //--------------------------------------------------------
+  Venda     := xmldocument1.AddChild('Cliente');
+  //-------------------------------------------------------
+  cabecalho := venda.addchild('Informações');
+  cabecalho.AddChild('Nome').Text       := ed_nome.text;
+  cabecalho.AddChild('Identidade').Text := ed_ident.text;
+  cabecalho.AddChild('CPF').Text        := ed_cpf.text;
+  cabecalho.AddChild('Telefone').Text   := ed_fone.text;
+  cabecalho.AddChild('Email').Text      := ed_email.text;
+  //--------------------------------------------------------
+  cliente   := cabecalho.AddChild('Endereço');
+  cliente.AddChild('CEP').Text          := ed_cep.text;
+  cliente.AddChild('LOGRADOURO').Text   := ed_logradouro.text;
+  cliente.AddChild('NUMERO').Text       := ed_num.text;
+  cliente.AddChild('COMPLEMENTO').Text  := ed_complemento.text;
+  cliente.AddChild('BAIRRO').Text       := ed_bairro.text;
+  cliente.AddChild('CIDADE').Text       := ed_cidade.text;
+  cliente.AddChild('ESTADO').Text       := ed_uf.text;
+  cliente.AddChild('PAIS').Text         := ed_pais.text;
+
+  //--- grava informações geradas do xml na pasta \xml
+  xmldocument1.SaveToFile(ed_dir_xml.text+vnome_arq);
+
+  //--  desativa o xml
+  xmldocument1.Active := false;
+
+end;
+
+procedure TFrm_cadastro.btn_incluirClick(Sender: TObject);
+begin
+  //-- botao escolhido incluir
+  vopcao := 'I';  // inclusao
+
+  lbl_opcao.Caption := 'INCLUSÃO';
+
+  pnl_menu_left.enabled  := false;
+  pgcclientes.ActivePage := tbs_cadastro;
+  //-- limpar campos
+  limpar_campos;
+
+  ed_nome.SetFocus;
+
+end;
+
+procedure TFrm_cadastro.btn_sairClick(Sender: TObject);
+begin
+  close;
+end;
+
+procedure TFrm_cadastro.btn_voltar_configClick(Sender: TObject);
+begin
+  pnl_menu_left.enabled  := true;
+  pgcclientes.ActivePage := tbs_dados;
+end;
+
+procedure TFrm_cadastro.parametros_email;
+begin
+  //-- parametros usados no componente ACBr
+  ACBrMail1.From           := ed_email_de.text;
+  ACBrMail1.FromName       := ed_nome_envio.text;
+  ACBrMail1.Host           := ed_host.text;
+  ACBrMail1.Username       := ed_conta_email.text;
+  ACBrMail1.Password       := ed_senha_email.text;
+  ACBrMail1.Port           := ed_porta.text;
+  ACBrMail1.SetTLS         := chkTLS.Checked;
+  ACBrMail1.SetSSL         := chkSSL.Checked;
+  ACBrMail1.DefaultCharset := TMailCharset(27);
+  ACBrMail1.IDECharset     := TMailCharset(15);
+  ACBrMail1.AddAddress(ed_email.text, ed_email.text);  // enviar email para
+
+end;
+
+procedure TFrm_cadastro.pnl_menu_topMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+const
+   sc_DragMove = $f012;
+begin
+  ReleaseCapture;
+  Perform(wm_SysCommand, sc_DragMove, 0);
+end;
+
+procedure TFrm_cadastro.btn_configClick(Sender: TObject);
+begin
+  pnl_menu_left.enabled  := false;
+  pgcclientes.ActivePage := tbs_config;
+end;
+
+procedure TFrm_cadastro.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  mtclientes.Active := false;
+  action := TCloseAction.caFree;
+end;
+
+procedure TFrm_cadastro.FormCreate(Sender: TObject);
+begin
+  //-- ativa memtable
+  mtclientes.Active := true;
+  //-- inicializa a stringlist
+  campos_cad := TStringList.Create;
+  //-- inicializa o contador
+  vcontador := 1;
+  //-- data para arquivo xml
+  vdata_arq_xml := FormatDateTime('ddmmyyyy',date);
+  //-- esconder tabsheets
+  esconderAbas(pgcclientes);
+  pgcclientes.ActivePage := tbs_dados;
+end;
+
+procedure TFrm_cadastro.Image1Click(Sender: TObject);
+begin
+  //-- desativa o filtro da consulta
+  MTClientes.Filtered := false; // desativa o filtro
+  ed_pesquisa.Clear;
+end;
+
+procedure TFrm_cadastro.Image2Click(Sender: TObject);
+begin
+  //-- ativa o filtro para consulta memtable
+  MTClientes.Filter   := 'Nome like ' + QuotedStr(ed_Pesquisa.Text + '%');
+  MTClientes.Filtered := True; // ativa o filtro
+end;
+
+procedure TFrm_cadastro.ACBrMail1MailException(const AMail: TACBrMail;
+  const E: Exception; var ThrowIt: Boolean);
+begin
+
+   try
+    ThrowIt := False;
+    showmessage('*** Erro ao Enviar o email para ' + ed_email.Text +' verifique!!'); //.Subject);
+   except
+     ShowMessage(E.Message);
+     ThrowIt := False;
+   end;
+
+end;
+
+procedure TFrm_cadastro.alterar_cliente;
+begin
+  //-- rotina para alterar dados do cliente
+  MTClientes.edit;
+  MTClientes.FieldByName('Nome').AsString        := ed_nome.Text;
+  MTClientes.FieldByName('Identidade').AsString  := ed_ident.Text;
+  MTClientes.FieldByName('CPF').AsString         := ed_cpf.Text;
+  MTClientes.FieldByName('Telefone').AsString    := ed_fone.Text;
+  MTClientes.FieldByName('Email').asstring       := ed_email.text;
+  MTClientes.FieldByName('Cep').asstring         := ed_cep.text;
+  MTClientes.FieldByName('Logradouro').asstring  := ed_logradouro.text;
+  MTClientes.FieldByName('Numero').asstring      := ed_num.text;
+  MTClientes.FieldByName('Complemento').asstring := ed_complemento.text;
+  MTClientes.FieldByName('Bairro').asstring      := ed_bairro.text;
+  MTClientes.FieldByName('Cidade').asstring      := ed_cidade.text;
+  MTClientes.FieldByName('UF').asstring          := ed_uf.text;
+  MTClientes.FieldByName('Pais').asstring        := ed_pais.text;
+  //-- grava as alterações
+  MTClientes.post;
+end;
+
+procedure TFrm_cadastro.limpar_campos;
+begin
+  //-- limpar os campos do form
+  ed_nome.Clear;
+  ed_ident.Clear;
+  ed_cpf.Clear;
+  ed_fone.Clear;
+  ed_email.Clear;
+  ed_cep.Clear;
+  ed_logradouro.Clear;
+  ed_num.Clear;
+  ed_complemento.Clear;
+  ed_bairro.Clear;
+  ed_cidade.Clear;
+  ed_uf.Clear;
+  ed_pais.Clear;
+  mm_dados.Clear;
+
+end;
+
+procedure TFrm_cadastro.mostrar_dados;
+begin
+  //-- rotina para mostrar dados do cliente selecionado
+  ed_nome.Text        := MTClientes.FieldByName('Nome').AsString;
+  ed_ident.text       := MTClientes.FieldByName('Identidade').AsString;
+  ed_cpf.text         := MTClientes.FieldByName('Cpf').AsString;
+  ed_fone.text        := MTClientes.FieldByName('Telefone').AsString;
+  ed_email.text       := MTClientes.FieldByName('Email').asstring;
+  ed_cep.text         := MTClientes.FieldByName('Cep').asstring;
+  ed_logradouro.text  := MTClientes.FieldByName('Logradouro').asstring;
+  ed_num.text         := MTClientes.FieldByName('Numero').asstring;
+  ed_complemento.text := MTClientes.FieldByName('Complemento').asstring;
+  ed_bairro.text      := MTClientes.FieldByName('Bairro').asstring;
+  ed_cidade.text      := MTClientes.FieldByName('Cidade').asstring;
+  ed_uf.text          := MTClientes.FieldByName('UF').asstring;
+  ed_pais.text        := MTClientes.FieldByName('Pais').asstring;
+
+end;
+
+//--- Procedure e Functions ------------------------------------
+procedure TFrm_cadastro.EsconderAbas(PageControl: TPageControl);
+var
+  iPage: Integer;
+begin
+  for iPage := 0 to PageControl.PageCount - 1 do
+    PageControl.Pages[iPage].TabVisible := False;
+
+  if ( PageControl.PageCount > 0 ) then
+    PageControl.ActivePage := PageControl.Pages[0];
+
+  PageControl.Style := tsButtons;
+end;
+
+function TFrm_cadastro.SomenteNumero(str : string) : string;
+var
+    x : integer;
+begin
+    Result := '';
+    for x := 0 to Length(str) - 1 do
+      if (str.Chars[x] In ['0'..'9']) then
+         Result := Result + str.Chars[x];
+end;
+
+
+end.
